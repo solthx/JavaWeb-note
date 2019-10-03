@@ -137,7 +137,7 @@ path ：虚拟路径 ( 绝对路径 or 相对路径(工作目录为webapps下) )
 
 2. 右键项目名(MyJspProject) -> Build-Path -> Config Build Path -> Library -> Add Library -> server Library 
 
-### 4. 统一字符集编码
+## 9. 统一字符集编码
 编码分类：
 设置jsp文件的编码(jsp文件中的pageEncoding属性): jsp -> java 
 设置浏览器读取jsp文件的编码(jsp文件中的content属性里的charset) 
@@ -145,14 +145,14 @@ path ：虚拟路径 ( 绝对路径 or 相对路径(工作目录为webapps下) )
 
 文本编码: 统一项目内的文件编码: 右键项目名->properties->resource 就能看到了
 
-### 5. 保证tomcat的一致性
+## 10. 保证tomcat的一致性
 在server面板 新建一个tomcat实例，再在该实例中部署项目( 右键-add and remove) 之后运行
 
 注意: 一般建议将eclipse中的tomcat于本地tomcat的配置信息保持一致, 将eclipse中的tomcat设置成托管模式（双击tomcat, 在server location里选择）
 ![pic1](https://github.com/solthx/JavaWeb-note/blob/master/Week1/pic/pic1.png)
 
-### 6. JSP的页面元素有哪些:
-#### 1. 脚本Scriplet:
+## 11. JSP的页面元素有哪些:
+### 11.1. 脚本Scriplet:
 - java代码  ( <% ... %> 局部变量、 java语句 )
 ```jsp
 <%
@@ -171,5 +171,128 @@ path ：虚拟路径 ( 绝对路径 or 相对路径(工作目录为webapps下) )
 ```
 - 输出表达式
 ```jsp
-<%="hello.."%>  <=> <% out.println("hello.. ") %>
+<%="hello.."%>  <=> <% out.print("hello.. ") %>
 ```
+（println不会打印回车！！！！！！！！！）
+ (想打回车，就加个<br/>, 就像是'\n'一样！！！！！)
+ （out.print()和<%= .. %> 的打印，其实就是把html代码给打印上去！！"<font color="red">hello</font>" 就会打印个红色的hello！！！）
+ps: 一般而言，修改web.xml、配置文件、java  需要重新启动tomcat服务器，
+但是如果修改jsp/html/css/js, 就不需要重启
+
+### 11.2 指令 
+
+<%@ 指令 %>
+
+以page指令为例，
+```
+<%@ page ... %>
+```
+page指定的属性:
+- language: jsp 页面使用的脚本语言
+- import : 导入类
+- pageEncoding: jsp文件的自身编码(jsp->java的编码)
+- contentType: 浏览器解析jsp的编码 与pageEncoding保持一致
+例如:
+```jsp
+<%@ page language="java" contentType="text/html; charset=utf-8" pageEncoding="utf-8" import="java.util.Date" %>
+```
+
+### 11.3 注释
+- html注释 <!-- --> (可以被浏览器查看源代码所观察到, 其他两个看不到)
+- java注释 
+- jsp注释 <%-- -->
+
+## 12. JSP九个内置对象 (自带的，不需要new 也可以使用的对象)
+### 12.1. out对象
+向客户端输出内容，输出对象
+### 12.2 pageContext
+
+### 12.3 request对象
+请求对象， 存储“客户端向服务端发送的请求信息”
+
+#### 12.3.1 request常用的方法
+```java
+String getParameter(String name); //根据请求的字段名key（input标签的name属性），返回字段值value（input标签的value属性值）
+String [] getParameterValues(String name); //根据key, 返回字符串数组
+void setCharacterEncoding("utf-8") ： //设置post方式的请求编码，默认编码为tomcat默认编码，tomcat8及之后是utf-8, 8之前是iso-8859-1
+.getRequestDispatcher("b.jsp").forward(request, response); ： //请求转发 从当前页面，跳转到b.jsp那个页面
+ServletContext getServerContext(): 获取项目的ServletContext对象
+```
+#### 12.3.2 案例
+实现一个提交表单并且打印表达的功能.
+1. register.jsp
+```jsp
+....
+ <body>
+  	<form action="show.jsp" method="post">
+	     用户名: <input type="text" name="uname"/><br/>
+	     密码: <input type="password" name="upwd"/><br/>
+	     年龄: <input type="text" name="uage"/><br/>
+	     爱好: <br/>
+	     	<input type="checkbox" name="hobbies" value="篮球">篮球<br/>
+	     	<input type="checkbox" name="hobbies" value="足球">足球<br/>
+	     	<input type="checkbox" name="hobbies" value="乒乓球">乒乓球<br/>
+	     	<input type="submit" value="注册">
+     </form>
+  </body>
+....
+```
+- name相当于标签的key, value就是标签的value.
+- input标签的一些type： text, password, checkbox, submit...
+- input标签的submit， value是button的内容(默认为“提交”)
+- 提交之后的， 会把表单提交到action里，方式为method方式，在action里，使用request来接受表单信息。
+- show.jsp文件放在WebRobot目录下，根目录下可以直接访问。
+
+2. show.jsp
+```jsp
+....'<body>
+  	<%
+  		request.setCharacterEncoding("utf-8");
+  		String uname = request.getParameter("uname");
+  		String upwd = request.getParameter("upwd");
+  		int age = Integer.parseInt(request.getParameter("uage"));
+  		String [] hobbies = request.getParameterValues("hobbies");
+  	 %>
+  	 
+  		=============信息如下==============<br/>
+  	用户名: <%=uname+"<br/>"%>
+  	密码: <%=upwd +"<br/>"%>
+  	年龄: <%=age %><br/>
+  	爱好:<br/>
+  	<%
+  		if (hobbies!=null)
+	  		for ( String nms:hobbies )
+	  			out.print(nms+"<br/>");
+  	 %>
+  	
+  </body>
+....
+
+```
+#### 12.3.3 post和get的区别
+1. get的参数会显示在地址栏里， 地址栏能容纳的信息有限, 因此，大文件的上传需要用post
+2. get不安全，因为参数都暴露出来了
+
+#### 12.3.4 统一请求的编码 request
+如果get请求出现了乱码，例如请求使用的编码是iso-8859-1, 但服务器端的编码是utf-8，
+编码不一致就会出现乱码，
+**get**方式的解决方法如下:
+1. 统一每一个变量的编码
+```java
+new String(旧编码, 新编码)
+name = new String( name.getBytes("iso-8859-1"), "utf-8" );
+```
+
+2. 修改server.xml，一次性的更改tomcat默认get提交的编码(utf-8)
+(在修改端口号的那个标签，加一个属性 URIEncoding="utf-8" 然后就行了(即 之后所有的get请求都变成了utf-8的编码) ) 
+
+**post**方式的解决方法如下：
+request.setCharacterEncoding("utf-8")
+setCharacterEncoding这个函数是设置post方式的请求编码
+
+### 12.4 response
+### 12.5 session
+### 12.6 application
+### 12.7 config
+### 12.8 page
+### 12.9 exception
