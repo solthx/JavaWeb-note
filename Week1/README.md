@@ -154,16 +154,22 @@ path ：虚拟路径 ( 绝对路径 or 相对路径(工作目录为webapps下) )
 ### 6. JSP的页面元素有哪些:
 #### 1. 脚本Scriplet:
 - java代码  ( <% ... %> 局部变量、 java语句 )
+```jsp
 <%
 	String s = "hehe";
 	out.println(s);
 %>
+```
 - 全局变量、定义方法 ( <%! ...  %> )
+```jsp
 <%!
 	public String bookName; // 全局变量
 	public void init(){     // 全局方法
 		bookName = "hehe";
 	}
 %>
+```
 - 输出表达式
-<%="hello.."%>  <=> <% out.println("hello..") %>
+```jsp
+<%="hello.."%>  <=> <% out.println("hello.. ") %>
+```
