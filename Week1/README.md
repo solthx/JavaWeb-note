@@ -433,8 +433,28 @@ cookie_test/login.jsp ->  cookie_test/check.jsp -> cookie_test/show.jsp
 ...
 ```
 
+#### 12.5.4 session
+服务器端的每一个session对应客户端的一个进程(或线程)， 而服务器之所以能够分辨它们，就是根据cookie中的JSESSIONID这个属性来分辨的. （所以，每一个cookie都有JSESSIONID这个属性.
 
+	客户端程序第一次请求服务端时，服务端在内部会先产生一个session对象和一个cookie，这个session对象会自带一个sessionId（用于区分其他session），然后在把sessionId的值复制一份，复制给JSESSIONID，然后把JSESSIONID放到cookie里面 （sessionId的值就是JSESSIONID的值）
 
+	因此客户端cookie的SESSIONID和 服务端的sessionId 一一对应
+
+#### 12.5.5 session对象方法
+```java
+1. String getId();  // 获取sessionId
+
+2. boolean isNew(); //判断是否是新用户(第一次访问)
+
+3. void invalidate();  //使session失效
+
+4. setAttribute(); //
+5. getAttribute();
+
+6. void setMaxiInactiveInterval(秒); // 设置最大有效 非活动时间
+
+7. int getMaxiInactiveInterval(秒); // 获取最大有效非活动时间
+```
 ### 12.6 application
 ### 12.7 config
 ### 12.8 page
