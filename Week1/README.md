@@ -212,11 +212,15 @@ page指定的属性:
 
 #### 12.3.1 request常用的方法
 ```java
-String getParameter(String name); //根据请求的字段名key（input标签的name属性），返回字段值value（input标签的value属性值）
-String [] getParameterValues(String name); //根据key, 返回字符串数组
-void setCharacterEncoding("utf-8") ： //设置post方式的请求编码，默认编码为tomcat默认编码，tomcat8及之后是utf-8, 8之前是iso-8859-1
-.getRequestDispatcher("b.jsp").forward(request, response); ： //请求转发 从当前页面，跳转到b.jsp那个页面
-ServletContext getServerContext(): 获取项目的ServletContext对象
+1. String getParameter(String name); //根据请求的字段名key（input标签的name属性），返回字段值value（input标签的value属性值）
+
+2. String [] getParameterValues(String name); //根据key, 返回字符串数组
+
+3. void setCharacterEncoding("utf-8") ： //设置post方式的请求编码，默认编码为tomcat默认编码，tomcat8及之后是utf-8, 8之前是iso-8859-1
+
+4  request.getRequestDispatcher("b.jsp").forward(request, response); ： //请求转发 从当前页面，跳转到b.jsp那个页面
+
+5. ServletContext getServerContext(): 获取项目的ServletContext对象
 ```
 #### 12.3.2 案例
 实现一个提交表单并且打印表达的功能.
@@ -291,7 +295,74 @@ request.setCharacterEncoding("utf-8")
 setCharacterEncoding这个函数是设置post方式的请求编码
 
 ### 12.4 response
+服务端发送给客户端的响应对象
+#### 12.4.1 response对象的常用方法
+```java
+1. void addCookie( Cookie cookie ); // 服务端向客户端增加cookie对象
+
+2. void sendRedirect( String location ) throws IOException; //重定向, 页面跳转的一种方式
+
+3. void setContentType( String encodingtype ) ;  // 设置服务端响应的编码( 设置服务端的contentType类型 ) 
+
+```
+#### 12.4.2 案例一: 登陆
+login/login.jsp -> login/check.jsp -> login/success.jsp
+1. login/login.jsp
+```jsp
+...
+<body>
+	<form action="login/check.jsp" method="post">
+	用户名：<input type="text" name="uname"><br/>
+	密码：<input type="password" name="upwd"><br/>
+	<input type="submit" value="登陆"><br/>
+	</form>
+</body>
+...
+```
+
+2. login/check.jsp
+```jsp
+...
+<%
+	request.setCharacterEncoding("utf-8");
+	String name = request.getParameter("uname");
+	String pwd = request.getParameter("upwd");
+	if ( name.equals("zs") && pwd.equals("abc") ){
+		// 页面跳转: 重定向方法, 使用这条语句会导致数据丢失！！
+		// response.sendRedirect("success.jsp"); 
+		
+		// 页面跳转: 请求转发，可以获取到数据，并且地址栏没有改变(依然是check.jsp，而不会变成success.jsp)
+		request.getRequestDispatcher("success.jsp").forward(request, response);
+	}else{
+		//登陆失败
+		out.print("用户名或密码有误！");
+	}
+%>
+...
+```
+
+3. login/success.jsp
+```jsp
+<body>
+    登陆成功！ <br>
+    欢迎您:
+    <%
+    	String name = request.getParameter("uname");
+     	out.print(name);
+     %>
+</body>
+```
+
+**请求转发和重定向的区别**
+|            	| 请求转发  		|   重定向   |
+|  ----      	| ----    		|    ---- |
+| 地址栏是否改变  | 不变( check.jsp )   | 改变(success.jsp)|
+| 是否保留第一次request的数据      	 | 一直保留   |  不保留| 
+| 请求次数      	 | 1次   |  2次| 
+|  原理区别      |  在服务器内部进行跳转 | 响应客户端，告诉它应该访问另一个地址, 然后客户端再进行第二次请求| 
+
 ### 12.5 session
+
 ### 12.6 application
 ### 12.7 config
 ### 12.8 page
