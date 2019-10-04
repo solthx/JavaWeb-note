@@ -355,13 +355,84 @@ login/login.jsp -> login/check.jsp -> login/success.jsp
 
 **请求转发和重定向的区别**
 |            	| 请求转发  		|   重定向   |
-|  ----      	| ----    		|    ---- |
+|  ----      	| ----    		    |    ----  |
 | 地址栏是否改变  | 不变( check.jsp )   | 改变(success.jsp)|
-| 是否保留第一次request的数据      	 | 一直保留   |  不保留| 
+| 是否保留第一次request的数据      	  | 一直保留   |  不保留| 
 | 请求次数      	 | 1次   |  2次| 
-|  原理区别      |  在服务器内部进行跳转 | 响应客户端，告诉它应该访问另一个地址, 然后客户端再进行第二次请求| 
+|  原理区别      |  在服务器内部进行跳转 | 响应客户端，告诉它应该访问另一个地址, 然后客户端再进行第二次请求 | 
 
-### 12.5 session
+### 12.5 session（服务端）
+#### 12.5.1 简介
+Cookie由服务端产生，在客户端保存.
+```java
+//Cookie : <key,value>
+
+javax.servlet.http.Cookie
+
+// 构造方法
+public Cookie(String name, String value); 
+
+// 成员方法简介
+String getName();
+String getValue();
+void setMaxAge(int expiry); //设置最大有效期( 秒 )
+```
+
+#### 12.5.2 服务端发送给客户端cookie
+```java
+// 装入cookie
+response.addCookie( Cookie cookie ); 
+// 页面跳转后(转发，重定向)
+...
+// 客户端获取cookie
+request.getCookies(); // 每次获取所有cookie，然后通过遍历去寻找自己要的那个cookie
+```
+
+#### 12.5.3 案例: 用cookie实现记住用户功能
+cookie_test/login.jsp ->  cookie_test/check.jsp -> cookie_test/show.jsp
+1. cookie_test/login.jsp
+```jsp
+。。。
+	<%!
+		String uname = ""; // 全局变量
+	%>
+	<%
+		Cookie [] cookies = request.getCookies(); // 提取cookie
+		for ( Cookie cookie:cookies ){
+			if ( cookie.getName().equals("uname") )
+				uname = cookie.getValue();
+		}
+	%>
+	<form action="./cookie_test/check.jsp" method="post">
+		<!-- value的三目表达式 -->
+		用户名：<input type="text" name="uname", value=<%=(uname==null?"":uname) %>><br/> 
+		密码：<input type="password" name="upwd"><br/>
+		<input type="submit" value="登陆"><br/>
+	</form>
+。。。
+```
+
+2. cookie_test/check.jsp
+```jsp
+...
+  <body>
+       <%
+	   		// 提取信息，把收到的信息存入cookie，然后再发给客户端
+			// 本次只保存用户名
+       		String uname = request.getParameter("uname");
+       		Cookie cookie = new Cookie("uname",uname);
+       		
+			// cookie装入
+       		response.addCookie(cookie);
+       		
+			// 通过重定向的“重新发送给客户端” 这一特点， 把cookie发到客户端
+       		response.sendRedirect("show.jsp");  // show.jsp 就是打印信息，代码不放了
+        %>
+  </body>
+...
+```
+
+
 
 ### 12.6 application
 ### 12.7 config
