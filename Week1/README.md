@@ -354,6 +354,7 @@ login/login.jsp -> login/check.jsp -> login/success.jsp
 ```
 
 **请求转发和重定向的区别**
+
 |            	| 请求转发  		|   重定向   |
 |  ----      	| ----    		    |    ----  |
 | 地址栏是否改变  | 不变( check.jsp )   | 改变(success.jsp)|
