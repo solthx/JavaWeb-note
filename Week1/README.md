@@ -434,7 +434,7 @@ cookie_test/login.jsp ->  cookie_test/check.jsp -> cookie_test/show.jsp
 ```
 
 #### 12.5.4 session
-服务器端的每一个session对应客户端的一个进程(或线程)， 而服务器之所以能够分辨它们，就是根据cookie中的JSESSIONID这个属性来分辨的. （所以，每一个cookie都有JSESSIONID这个属性.
+服务器端的每一个session对应客户端的一个应用程序， 而服务器之所以能够分辨它们，就是根据cookie中的JSESSIONID这个属性来分辨的. （所以，每一个cookie都有JSESSIONID这个属性.
 
 	客户端程序第一次请求服务端时，服务端在内部会先产生一个session对象和一个cookie，这个session对象会自带一个sessionId（用于区分其他session），然后在把sessionId的值复制一份，复制给JSESSIONID，然后把JSESSIONID放到cookie里面 （sessionId的值就是JSESSIONID的值）
 
@@ -448,14 +448,33 @@ cookie_test/login.jsp ->  cookie_test/check.jsp -> cookie_test/show.jsp
 
 3. void invalidate();  //使session失效
 
-4. setAttribute(); //
-5. getAttribute();
+4. void setAttribute(String name, Object value );  //给session加一个kv对 
+
+5. Object getAttribute( String name );  // 根据name获取对于的value
 
 6. void setMaxiInactiveInterval(秒); // 设置最大有效 非活动时间
 
 7. int getMaxiInactiveInterval(秒); // 获取最大有效非活动时间
 ```
-### 12.6 application
+
+#### 12.5.6 session的共享域
+同一个程序都可以共享session的内容(例如同一个浏览器内).
+
+#### 12.5.7 seesion和cookie的区别
+|            	|   session  	    |  cookie   		|
+|  ----      	| ----    		    |    ----  |
+|  保存的位置 	  |  服务端    		| 	客户端  	|
+|  安全性 	  | 较为安全    		| 	不安全  	|
+|  保存的内容 	  |  Object    		| 	String  	|
+
+
+### 12.6 application 全局对象
+```java
+1. String getContextPath(); // 获取虚拟路径
+2. String getRealPath();   // 获取绝对路径 
+```
+
+
 ### 12.7 config
 ### 12.8 page
 ### 12.9 exception
