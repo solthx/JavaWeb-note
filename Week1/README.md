@@ -460,6 +460,9 @@ cookie_test/login.jsp ->  cookie_test/check.jsp -> cookie_test/show.jsp
 #### 12.5.6 session的共享域
 同一个程序都可以共享session的内容(例如同一个浏览器内).
 
+客户端在第一次请求服务端时， 如果服务端发现此请求没有JSESSIONID，则会创建一个 name=JSESSIONID的cookie给客户端 .  **Cookie**: 不是内置对象，但服务端会自动new一个给客户端
+
+
 #### 12.5.7 seesion和cookie的区别
 |            	|   session  	    |  cookie   		|
 |  ----      	| ----    		    |    ----  |
@@ -474,7 +477,26 @@ cookie_test/login.jsp ->  cookie_test/check.jsp -> cookie_test/show.jsp
 2. String getRealPath();   // 获取绝对路径 
 ```
 
+### 12.7 config 配置对象( 服务器配置信息 )
+### 12.8 page 输出对象 (相当于java中的this)
+### 12.9 exception 异常对象
 
-### 12.7 config
-### 12.8 page
-### 12.9 exception
+### 12.10
+
+#### 12.10.1 四种范围对象（ 作用域 按 小->大 排序)
+1. pageContext JSP页面容器（作用域仅仅为当前页面！！！）  （有些书上也会说这个是page对象， 但是跟上面的page对象是两个东西）
+2. request   请求对象    同一次请求有效（作用域为同一次request！！！）
+3. session   会话对象    同一次session有效 （作用域为同一次会话！！！）
+4. application 全局对象   全局有效(整个项目有效) (作用域为整个项目，可以理解成全局变量) ( 关闭服务(重启服务器)、其他项目 则会无效 )
+**重启后，多个项目共享，可以通过JNDI实现**
+
+**上面的四个范围对象，大多就是用setAttribute和getAttribute这俩函数。 同时，对象作用域越大，开销就越大，因此用能满足功能的最小作用域.**
+
+上面的四个对象共有的方法：
+```java
+1. Object getAttribute(String name); //根据属性名，或者属性值
+
+2. void setAttribute(String name, Object value); //设置属性(可以新增，也可以修改)
+
+3. void removeAttribute( String name ); 
+```
