@@ -154,7 +154,7 @@ public class JDBCDemo {
 ```
 
 查询得到的resultSet：
-!(resultSet.png)[https://github.com/solthx/JavaWeb-note/blob/master/Week2/pic/jdbc%E6%9F%A5%E8%AF%A2.png]
+![resultSet.png](https://github.com/solthx/JavaWeb-note/blob/master/Week2/pic/jdbc%E6%9F%A5%E8%AF%A2.png)
 
 #### 小结：
 1. DriverManager ： 管理jdbc驱动
