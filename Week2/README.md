@@ -319,11 +319,11 @@ Servlet是一些类型需要符合的规范:
 ...
 ```
 
-### 5.1 使用Servlet的时候需要配置
+## 5.1 使用Servlet的时候需要配置
 1. servlet 2.5 : 配置web.xml
 2. servlet 3.0 : 不需要配置web.xml的映射关系， 只需要在Servlet的定义处上面写@WebSerlvet("url-pattern")  ，记住，不要加分号！！！一定要从根目录开始写！！！！！("xxx")错误！！  ("/xxx")正确！！
 
-### 5.2 根目录
+## 5.2 根目录
 Web项目的根目录是: 
 1. WebRobot 
 2. 所有的构建路径(src, 或自己创建一个source folder)
@@ -333,8 +333,26 @@ Web项目的根目录是:
 
 如果: index.jsp中请求<a href="a/abc"></a>，寻找范围:现在src或WebContent中找a目录，然后再在a目录中找"abc" ，注意: 把url-pattern写成"/a/abc" 那么即使没有a目录，也可以正常访问！！
 
-## /:
+### /:
 1. web.xml： 在web.xml中(包括Webservlet(..)中) / 代表的是项目路径 , 也就是 "http://localhost:9999/ServletDemo/a/WelcomeServlet"中的 "http://localhost:9999/ServletDemo/" 即 "地址/项目名/"，也就是项目根路径
 
 2. jsp: jsp中， / 代表的是 "http://localhost:9999/" ，即 "地址/"， 也就是服务器根路径
 
+## 5.3 Servlet生命周期（5个阶段）
+1. 加载
+2. 初始化: init(), 该方法会在Servlet被加载并实例化的以后执行
+3. 服务:  service() -> doGet() doPost()
+4. 销毁:  destroy(), Servlet被系统回收时执行
+5. 卸载
+
+### 5.3.1 init()方法:
+1. 第一次访问servlet的时候会被执行，只执行一次.
+2. 可以修改为Tomcat加载时，启动时进行初始化，具体修改方法为:
+	- Servlet 2.5 : 在web.xml里，加一个标签<load-on-startup>1</load-on-startup> 加完之后，就会在Tomcat启动的时候执行init
+	- Servlet 3.0 : @WebServlet( value="/...(servlet-name))" , loadOnStartup=1 );  ``loadOnStartup=1``表示在所有的Servlet中第一个执行这个Servlet的Init方法。
+
+### 5.3.2 service()-> doGet(), doPost()
+访问一次，执行一次
+
+### 5.3.3 destory()
+关闭服务器的时候，会执行destory()
