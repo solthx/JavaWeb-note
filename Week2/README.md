@@ -169,7 +169,7 @@ public class JDBCDemo {
 - Connection产生PreparedStatement对象:  connect.prepareStatement()
 - Connection产生CallableStatement对象:  connect.prepareCall()
 
-#### 1.3.1 PreparedStatement操作数据库:
+#### 1.3.1 PreparedStatement操作数据库 (推荐使用PreparedStatement, 无论是从可扩展性， 还是预编译的角度， 还是安全的角度，PreparedStatement更好！) :
 public interface PerparedStatement extends Statement
 
 当你想把程序里变量的值作为内容，存到数据库里的时候，Statement就显得有些无力了，
@@ -222,4 +222,119 @@ sql查询语句的占位符'?' 一起使用，就能完成上面的的任务.
 
 
 ```
+
+#### 1.3.3 CallableStatement：调用存储过程、存储函数
+connect.preparedCall(参数)
+
+参数格式:
+	存储过程(无返回值):  { call 存储过程名( 参数列表 ) }
+	存储函数(有返回值):  { ? = call 存储函数名( 参数列表 ) }
+
+例子:
+```java
+...
+// 一、存储过程
+	// 假设已有 addTwoNum( in a int , in b int , out c int ) ; // c = a + b
+	Class.ForName(..);
+	connect = DriverManager.getConnection(..);
+	CallableStatement cstmt = null;
+	// 传入调用函数的语句
+	cstmt = connect.prepareCall( "{ call addTwoNum(?,?,?) }" );
+	// 放置参数
+	cstmt.setInt(1, 10);
+	cstmt.setInt(1, 12);
+	// 设置输出类型
+	cstmt.registerOutParameter( 3, Types.INTEGER ); // 第三个参数是输出参数，其类型为INTEGER(枚举类型)
+	// 执行
+	cstmt.execute(); // 执行a+b ->c
+	// 获取参数
+	int result = cstmt.getInt(3);
+...
+...
+	if ( cstmt!=null )
+		cstmt.close();
+...
+
+//二、存储函数:
+	cstmt = connect.prepareCall( "？ = { call addTwoNum(?,?) }" );
+	// 后面都一样，就是占位符的位置变一下而已.
+
+```
+
+**小结: JDBC调用存储过程的步骤**
+1. 产生存储过程的对象 ``CallableStatement cstmt= connect.prepareCall( "{ call addTwoNum(?,?,?) }" );``
+2. 通过setXxx()处理 输出参数值 cstmt.setInt(1,30); ...
+3. 通过cstmt.registerOutParameter( 3, Types.INTEGER ); 来处理输出参数类型
+4. 执行cstmt.execute();
+5. 获取结果 cstmt.getXxx(..);
+6. cstmt.close();
+
+---
+
+
+# 2. JSP访问数据库
+JSP就是在html中嵌套Java代码，因此java代码可以写在jsp中，下面记录一下在jsp中和java中的不同之处.
+
+1. 导包操作:
+	java项目是把jar包丢到src里，然后右键add build path。
+	web项目: 只要把jar包赋值到WEB-INF/lib里就可以了.
+
+2. 如果一个类是访问数据库的, 那么这个类的后缀就是Dao
+
+
+# 3. JavaBean
+javaBean满足:
+1. 所有属性为private
+2. 提供默认构造方法
+3. 提供getter和setter
+4. 实现serializable接口
+
+目的是为了向下兼容，代码可扩展性更好, 提高代码复用 ... 
+
+使用层面上，JavaBean分为两大类：
+1. 封装**业务逻辑**的JavaBean ( 例如封装登陆逻辑, 封装注册逻辑等 )
+2. 封装**数据**的JavaBean	( 实体类，例如人, 水果, 车 等等， 对应数据库的一张表 )
+
+
+# 4. MVC设计模式:
+M: Model 模型 : 实现逻辑功能. (JavaBean实现)
+V: View  视图 : 用于展示、以及与用户交互. (前端技术实现)
+C: Controller 控制器 : 接收用户请求，将请求跳转到模型进行处理; 模型处理完毕后，再把处理结果返回给请求页面.   可以用jsp实现，但一般用Servlet实现.
+
+# 5. Servlet:
+Servlet是一些类型需要符合的规范:
+1. 必须继承 javax.servlet.http.HttpServlet
+2. 必须重写其中的doGet()或doPost()方法
+3. 编写web.xml的映射关系
+```xml
+...
+<servlet>
+	<servlet-name>abc</servlet-name>
+	<servlet-class>com.Mytest.servlet.WelcomeServlet</servlet-class>
+</servlet>
+<servlet-mapping>
+	<servlet-name>abc</servlet-name>
+	<url-pattern>/WelcomeServlet</url-pattern>
+</servlet-mapping>
+...
+```
+
+### 5.1 使用Servlet的时候需要配置
+1. servlet 2.5 : 配置web.xml
+2. servlet 3.0 : 不需要配置web.xml的映射关系， 只需要在Servlet的定义处上面写@WebSerlvet("url-pattern")  ，记住，不要加分号！！！一定要从根目录开始写！！！！！("xxx")错误！！  ("/xxx")正确！！
+
+### 5.2 根目录
+Web项目的根目录是: 
+1. WebRobot 
+2. 所有的构建路径(src, 或自己创建一个source folder)
+( 配置web.xml时，类名，路径，都一定要全！！ )
+
+如果: index.jsp中请求<a href="abc">..</a>, 则寻找范围: 既会在src根目录中找也会在WebRobot中找 "abc"
+
+如果: index.jsp中请求<a href="a/abc"></a>，寻找范围:现在src或WebContent中找a目录，然后再在a目录中找"abc" ，注意: 把url-pattern写成"/a/abc" 那么即使没有a目录，也可以正常访问！！
+
+## /:
+1. web.xml： 在web.xml中(包括Webservlet(..)中) / 代表的是项目路径 , 也就是 "http://localhost:9999/ServletDemo/a/WelcomeServlet"中的 "http://localhost:9999/ServletDemo/" 即 "地址/项目名/"，也就是项目根路径
+
+2. jsp: jsp中， / 代表的是 "http://localhost:9999/" ，即 "地址/"， 也就是服务器根路径
 
