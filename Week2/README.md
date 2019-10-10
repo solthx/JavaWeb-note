@@ -356,3 +356,23 @@ Web项目的根目录是:
 
 ### 5.3.3 destory()
 关闭服务器的时候，会执行destory()
+
+
+## 5.4 Servlet API
+由两个软件包组成: 对应于http协议的软件包、对应于除了http协议以外的其他软件包
+即Servlet API可以适用于 任何 通信协议。
+在这里，先学习 javax.servlet.http包中的类和接口，是基础http协议。
+
+**下图为Servlet的继承关系**
+![Servlet继承关系](https://github.com/solthx/JavaWeb-note/blob/master/Week2/pic/Servlet%E7%BB%A7%E6%89%BF%E5%85%B3%E7%B3%BB.png)
+
+### 5.4.1 ServletConfig接口 : 
+ServletConfig接口 包含以下方法:
+```java
+1. ServletContext getServletContext(); //  获取Servlet上下文对象 jsp里内置对象——application对象就是ServletContext类产生的对象！ 注意: ServletContext里也有getInitParameter(name) 方法， 但是它的范围是整个Web容器，要比ServletConfig接口里的getInitParameter(name)范围更加大！
+
+2. String getInitParameter(String name); //在当前Servlet范围内，获取名为name的参数值(初始化参数)
+
+
+
+```
