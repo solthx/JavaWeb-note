@@ -367,12 +367,73 @@ Web项目的根目录是:
 ![Servlet继承关系](https://github.com/solthx/JavaWeb-note/blob/master/Week2/pic/Servlet%E7%BB%A7%E6%89%BF%E5%85%B3%E7%B3%BB.png)
 
 ### 5.4.1 ServletConfig接口 : 
-ServletConfig接口 包含以下方法:
+ServletConfig接口提供的重要方法:
 ```java
-1. ServletContext getServletContext(); //  获取Servlet上下文对象 jsp里内置对象——application对象就是ServletContext类产生的对象！ 注意: ServletContext里也有getInitParameter(name) 方法， 但是它的范围是整个Web容器，要比ServletConfig接口里的getInitParameter(name)范围更加大！
+1. ServletContext getServletContext(); //  获取Servlet上下文对象 jsp里内置对象——application对象就是ServletContext类产生的对象！ 
 
 2. String getInitParameter(String name); //在当前Servlet范围内，获取名为name的参数值(初始化参数)
 
+```
 
+#### 下面开始记录一下，key-value对的设置，以及其对应的作用域，以及如何取到
+
+1. 通过getInitParameter(name)来取到value
+getInitParameter方法， ServletContext有，ServletConfig接口也有。
+
+2. 作用域方面: 
+- ServletContext 作用的范围是整个Web容器
+- 继承ServletConfig接口里的getInitParameter 作用于Servlet
+
+也好记，你看，application的作用域是整个项目， ServletContext又是application的类，那ServletContext里方法的作用域肯定也是整个项目了。   
+
+但是，继承了ServletConfig接口里的getInitParameter方法，作用域是自己的这个Servlet里( 根据封装的道理这是自然的. )。
+
+
+3. 关于如何设置，servlet2.5和3.0有所不同，如下:
+- **servlet 2.5版本配置key-value对**
+在web.xml里配置key-value的方法:
+1. 在整个项目，即全局的作用域的key-value对:
+```xml
+ <context-param>
+	<param-name>uname</param-name>
+	<param-value>czf1997</param-value>
+</context-param>
+
+```
+
+2. 在Servlet配置:
+```xml
+<servlet>
+	...
+	<init-param>
+		<param-name>uname</param-name>
+		<param-value>czf1997</param-value>
+	</init-param>
+	...
+</servlet>
+```
+
+- **servlet 2.5版本配置key-value对**
+
+1. 在Servlet配置: 
+```java
+@WebServlet( value="/Servlet名字", loadOnStartup=1,  initParams={ @WebInitParam(name="uname", value="czf1997") } )
+public class ....
+
+```
+
+2. 全局的配置：
+	和上面的一样。
+
+
+### 5.4.1  Servlet接口 : 
+service() 在Servlet，GeneriServlet里都是abstract， 然后在HttpServlet里被实现了.
+
+因为，Servlet是一个规范，用于http和非http, 
+service的两个形参，一个是ServletRequest，一个是ServletResponse。
+
+而HttpServlet对其的重写，就相当于帮我把Http的协议给实现了一下.
+形参也变成了HttpServletRequest和HttpServletResponse，具体一个实现转换的细节如下:
+```java
 
 ```
