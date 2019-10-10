@@ -433,7 +433,36 @@ service() 在Servlet，GeneriServlet里都是abstract， 然后在HttpServlet里
 service的两个形参，一个是ServletRequest，一个是ServletResponse。
 
 而HttpServlet对其的重写，就相当于帮我把Http的协议给实现了一下.
-形参也变成了HttpServletRequest和HttpServletResponse，具体一个实现转换的细节如下:
+形参也变成了HttpServletRequest和HttpServletResponse，具体一个实现转换的伪代码如下:
 ```java
 
+...  service(ServletRequest req, ServletResponse res){
+	try{
+		request = (HttpServletRequest) req;
+		response = (HttpServletResponse) res;
+	}catch ..
+	service( request, response ); // 重写了service方法
+}
+
+// 重写的service方法
+... service( HttpServletRequest req, HttpServletResponse resp ){
+	method = req.getMethod();
+	// 把请求根据请求的http包里的信息， 调用对应的函数( doGet,doPost,do..) 
+	// 最终实际上需要重写的就是doPost和doGet
+	// jsp里的request内置对象的类就是HttpServletRequest
+	// jsp里的response内置对象的类就是HttpServletResponse
+	// 因此，内置对象里的方法，这些类里也都有！( 例如request的 getAttribute(..), getCookies(), getMethod()....
+	if ( method.equals(METHOD_GET) ){
+		...
+	}else if ( method.equals(METHOD_POST) ){
+		doPost(req, resp);
+	}else if ( method.equals(METHOD_PUT) ){
+		doPut(req, resp);
+	}else if ...
+	...
+}
+
 ```
+
+
+视频先看到这了，之后开始看Head First JSP/Servlet里的Servlet部分... 
