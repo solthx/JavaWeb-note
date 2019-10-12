@@ -29,9 +29,50 @@ service()的作用就是作为中转站，根据头部信息来去调用doGet(),
 Servlet接口 -> GenericServlet类( 空实现 ) ->HttpServlet类(初步实现Http协议(doPost,doGet留给后面实现)) -> MyServlet类(重写doGet或doPost))
 
 # 3. Post和Get的区别
-1. 安全性，上传数据大小的区别
+1. 安全性，上传数据大小的区别( Get只有首部信息！ )
 2. 从编程约定上来讲，Get操作是幂等的，而Post操作是非幂等的. (幂等的意思就是操作一次跟操作n次得到的结果一样， 例如读操作是幂等的，而写操作就不是幂等的)
 
-ps: 超链接都是get请求
 
+
+ps: 超链接都是get请求
+ 
 ps: Servlet里想同时实现doGet和doPost，一般是在doGet的代码里写doPost
+
+# 4. Response
+### - response.setContentType("MIME类型名称");
+告诉浏览器要发挥的数据的类型，使得浏览器能够有一个正确的“举止”。 这个是必须要设定的.
+
+(这里讨论的是在Servlet里的情况。 然而在Apache中，可以通过建立MIME类型，把一个特定的扩展名的文件，映射到一个特定的内容类型)
+
+要求： 先调用``response.setContentType(..)`` 然后再调用获取输出流的方法``getWriter()``或者``getOutputStream()``
+
+# 5. ServletConfig--提供初始化参数
+
+最初的参数，是存在web.xml里的，Week2里介绍了如何设置。
+
+容器会读取web.xml里预先设定好的参数，然后存到ServletConfig里，然后把存好数据的ServletConfig传给Servlet的init()方法.
+
+init(ServletConfig)里 会调用init()方法
+
+(ps: 通过getServletConfig来获取ServletConfig对象的引用，一个Servlet只能有一个ServletConfig对象，且该对象对参数的读取也只能读一次！ )
+
+### 下面是初始化流程:
+1. 容器读取部署文件， 其中包括了 最初的初始化参数；
+2. 容器为这个Servlet创建一个新的ServletConfig实例。
+3. 容器为每个参数创建一个String类型的 {name,key}的键值对，name和key都是String。
+4. 容器向ServletConfig对象提供 name, key的引用 (这一步就是把读取的参数传给ServletConfig))
+5. 容器创建Servlet类的一个实例 (new了一个Servlet)
+6. 容器调用Servlet的``init(ServletConfig)``方法， 把刚得到数据的ServletConfig给穿过去
+
+# 6. ServletContext
+- 功能和ServletConfig类似，只是作用域不同，Week2也讲过了，这里不赘述
+
+- 每个Servlet有一个ServletConfig，而每个Web应用有一个ServletContext，可以理解成项目内的全局变量。
+
+ps: ServletContext 和 ServletConfig 不支持运行时修改参数, 可以理解成常量的赋值， 不存在set...方法
+
+- ServletContext用于项目中Servlet之间和Web容器之间的连接..
+
+- 可以通过两种方式得到ServletConfig：
+    1. ServletConfig对象有``getServletContext()``方法 (在你的自定义Servlet里，既没有继承HttpServlet 也没有继承GenericServlet，这个时候可以通过这个方法来获得))
+    2. 继承了HttpServlet或GenericServlet，就可以直接调用``getServletContext()``方法了。
